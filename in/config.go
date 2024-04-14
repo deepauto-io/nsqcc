@@ -18,19 +18,20 @@ package in
 
 import (
 	"fmt"
+	"github.com/asaskevich/govalidator"
 
 	ntls "github.com/deepauto-io/nsqcc/tls"
 )
 
 // Config is the configuration for the reader.
 type Config struct {
-	Addresses       []string `envconfig:"NSQ_ADDRESSES"                   default:"127.0.0.1:4150"`   // Nsqd 地址列表
-	LookupAddresses []string `envconfig:"NSQ_LOOKUP_ADDRESSES"            default:"127.0.0.1:4161"`   // NSQLookupd 地址列表
-	Topic           string   `envconfig:"NSQ_TOPIC"`                                                  // 消费的主题名
-	Channel         string   `envconfig:"NSQ_CHANNEL"`                                                // 消费的频道名
-	UserAgent       string   `envconfig:"NSQ_USER_AGENT"                  default:"DeepAuto NSQ/1.0"` // 连接时使用的用户UA
-	MaxInFlight     int      `envconfig:"NSQ_MAX_IN_FLIGHT"               default:"64"`               // 同时处理的最大消息数量.
-	MaxAttempts     uint16   `envconfig:"NSQ_MAX_ATTEMPTS"                default:"3"`                // 消息最大重试次数
+	Addresses       []string `envconfig:"NSQ_ADDRESSES"                   default:"127.0.0.1:4150"`        // Nsqd 地址列表
+	LookupAddresses []string `envconfig:"NSQ_LOOKUP_ADDRESSES"            default:"127.0.0.1:4161"`        // NSQLookupd 地址列表
+	Topic           string   `envconfig:"NSQ_TOPIC"`                                                       // 消费的主题名
+	Channel         string   `envconfig:"NSQ_CHANNEL"`                                                     // 消费的频道名
+	UserAgent       string   `envconfig:"NSQ_USER_AGENT"                  default:"DeepAuto Consumer/1.0"` // 连接时使用的用户UA
+	MaxInFlight     int      `envconfig:"NSQ_MAX_IN_FLIGHT"               default:"64"`                    // 同时处理的最大消息数量.
+	MaxAttempts     uint16   `envconfig:"NSQ_MAX_ATTEMPTS"                default:"3"`                     // 消息最大重试次数
 	TLS             ntls.Config
 }
 
@@ -42,6 +43,7 @@ func NewConfig() Config {
 		UserAgent:       "DeepAuto NSQ/1.0",
 		MaxInFlight:     64,
 		MaxAttempts:     5,
+		TLS:             ntls.NewConfig(),
 	}
 }
 
@@ -55,5 +57,12 @@ func (c Config) Validate() error {
 		return fmt.Errorf("nsq lookupd addresses is required")
 	}
 
+	if govalidator.IsNull(c.Topic) {
+		return fmt.Errorf("nsq topic is required")
+	}
+
+	if govalidator.IsNull(c.Channel) {
+		return fmt.Errorf("nsq channel is required")
+	}
 	return nil
 }

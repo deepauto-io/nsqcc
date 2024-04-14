@@ -60,10 +60,6 @@ func (n *nsqReader) Connect(ctx context.Context) error {
 	n.cMut.Lock()
 	defer n.cMut.Unlock()
 
-	if n.consumer != nil {
-		return nil
-	}
-
 	cfg := nsq.NewConfig()
 	cfg.UserAgent = n.conf.UserAgent
 	cfg.MaxInFlight = n.conf.MaxInFlight

@@ -59,8 +59,6 @@ func NewConfig() Config {
 	}
 }
 
-//------------------------------------------------------------------------------
-
 func defaultTLSConfig() *tls.Config {
 	return &tls.Config{
 		MinVersion: tls.VersionTLS12,

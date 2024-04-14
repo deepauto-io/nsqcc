@@ -28,7 +28,7 @@ type Config struct {
 	Addresses       []string `envconfig:"NSQ_ADDRESSES"                   default:"127.0.0.1:4150"`        // Nsqd 地址列表
 	LookupAddresses []string `envconfig:"NSQ_LOOKUP_ADDRESSES"            default:"127.0.0.1:4161"`        // NSQLookupd 地址列表
 	Topic           string   `envconfig:"NSQ_TOPIC"`                                                       // 消费的主题名
-	Channel         string   `envconfig:"NSQ_CHANNEL"`                                                     // 消费的频道名
+	Channel         string   `envconfig:"NSQ_CHANNEL"                     default:"default"`               // 消费的频道名
 	UserAgent       string   `envconfig:"NSQ_USER_AGENT"                  default:"DeepAuto Consumer/1.0"` // 连接时使用的用户UA
 	MaxInFlight     int      `envconfig:"NSQ_MAX_IN_FLIGHT"               default:"64"`                    // 同时处理的最大消息数量.
 	MaxAttempts     uint16   `envconfig:"NSQ_MAX_ATTEMPTS"                default:"3"`                     // 消息最大重试次数
@@ -38,6 +38,7 @@ type Config struct {
 // NewConfig creates a new Config with default values.
 func NewConfig() Config {
 	return Config{
+		Channel:         "default",
 		Addresses:       []string{"127.0.0.1:4150"},
 		LookupAddresses: []string{"127.0.0.1:4161"},
 		UserAgent:       "DeepAuto NSQ/1.0",

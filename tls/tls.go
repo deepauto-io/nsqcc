@@ -24,27 +24,29 @@ import (
 	"errors"
 	"fmt"
 	"github.com/deepauto-io/nsqcc/filepath/ifs"
+	"github.com/kelseyhightower/envconfig"
+	"log"
 
 	"github.com/youmark/pkcs8"
 )
 
 // ClientCertConfig contains config fields for a client certificate.
 type ClientCertConfig struct {
-	CertFile string `envconfig:"TLS_CERT_FILE" json:"cert_file" yaml:"cert_file"`
-	KeyFile  string `envconfig:"TLS_KEY_FILE" json:"key_file" yaml:"key_file"`
-	Cert     string `envconfig:"TLS_CERT" json:"cert" yaml:"cert"`
-	Key      string `envconfig:"TLS_KEY" json:"key" yaml:"key"`
-	Password string `envconfig:"TLS_PASSWORD" json:"password" yaml:"password"`
+	CertFile string `json:"cert_file" envconfig:"TLS_CERT_FILE" json:"cert_file" yaml:"cert_file"`
+	KeyFile  string `json:"key_file" envconfig:"TLS_KEY_FILE" json:"key_file" yaml:"key_file"`
+	Cert     string `json:"cert" envconfig:"TLS_CERT" json:"cert" yaml:"cert"`
+	Key      string `json:"key" envconfig:"TLS_KEY" json:"key" yaml:"key"`
+	Password string `json:"password" envconfig:"TLS_PASSWORD" json:"password" yaml:"password"`
 }
 
 // Config contains configuration params for TLS.
 type Config struct {
-	Enabled             bool               `envconfig:"TLS_ENABLE"   json:"enabled" yaml:"enabled"`
-	RootCAs             string             `envconfig:"TLS_ROOTCAS"  json:"root_cas" yaml:"root_cas"`
-	RootCAsFile         string             `envconfig:"TLS_ROOTCAS_FILE"             json:"root_cas_file" yaml:"root_cas_file"`
-	InsecureSkipVerify  bool               `envconfig:"TLS_INSECURE_SKIP_VERIFY" json:"skip_cert_verify" yaml:"skip_cert_verify"`
+	Enabled             bool               `json:"enabled" envconfig:"TLS_ENABLE"   json:"enabled" yaml:"enabled"`
+	RootCAs             string             `json:"root_c_as" envconfig:"TLS_ROOTCAS"  json:"root_cas" yaml:"root_cas"`
+	RootCAsFile         string             `json:"root_c_as_file" envconfig:"TLS_ROOTCAS_FILE"             json:"root_cas_file" yaml:"root_cas_file"`
+	InsecureSkipVerify  bool               `json:"insecure_skip_verify" envconfig:"TLS_INSECURE_SKIP_VERIFY" json:"skip_cert_verify" yaml:"skip_cert_verify"`
 	ClientCertificates  []ClientCertConfig `json:"client_certs" yaml:"client_certs"`
-	EnableRenegotiation bool               `envconfig:"TLS_ENABLE_RENEGOTIATION" json:"enable_renegotiation" yaml:"enable_renegotiation"`
+	EnableRenegotiation bool               `json:"enable_renegotiation" envconfig:"TLS_ENABLE_RENEGOTIATION" json:"enable_renegotiation" yaml:"enable_renegotiation"`
 }
 
 // NewConfig creates a new Config with default values.
@@ -57,6 +59,17 @@ func NewConfig() Config {
 		ClientCertificates:  []ClientCertConfig{},
 		EnableRenegotiation: false,
 	}
+}
+
+func MustLoadConfig(cfgPath string) Config {
+	cfg := Config{}
+	if cfgPath == "" {
+		if err := envconfig.Process("", &cfg); err != nil {
+			log.Fatal(err)
+		}
+		return cfg
+	}
+	return cfg
 }
 
 func defaultTLSConfig() *tls.Config {

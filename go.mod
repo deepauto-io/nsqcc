@@ -4,6 +4,7 @@ go 1.21.5
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/stretchr/testify v1.9.0
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a

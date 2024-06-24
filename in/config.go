@@ -19,19 +19,21 @@ package in
 import (
 	"fmt"
 	"github.com/asaskevich/govalidator"
+	"log"
 
 	ntls "github.com/deepauto-io/nsqcc/tls"
+	"github.com/kelseyhightower/envconfig"
 )
 
 // Config is the configuration for the reader.
 type Config struct {
-	Addresses       []string `envconfig:"NSQ_ADDRESSES"                   default:"127.0.0.1:4150"`        // Nsqd 地址列表
-	LookupAddresses []string `envconfig:"NSQ_LOOKUP_ADDRESSES"            default:"127.0.0.1:4161"`        // NSQLookupd 地址列表
-	Topic           string   `envconfig:"NSQ_TOPIC"`                                                       // 消费的主题名
-	Channel         string   `envconfig:"NSQ_CHANNEL"                     default:"default"`               // 消费的频道名
-	UserAgent       string   `envconfig:"NSQ_USER_AGENT"                  default:"DeepAuto Consumer/1.0"` // 连接时使用的用户UA
-	MaxInFlight     int      `envconfig:"NSQ_MAX_IN_FLIGHT"               default:"64"`                    // 同时处理的最大消息数量.
-	MaxAttempts     uint16   `envconfig:"NSQ_MAX_ATTEMPTS"                default:"3"`                     // 消息最大重试次数
+	Addresses       []string `json:"addresses" envconfig:"NSQ_ADDRESSES"                   default:"127.0.0.1:4150"`         // Nsqd 地址列表
+	LookupAddresses []string `json:"lookupAddresses" envconfig:"NSQ_LOOKUP_ADDRESSES"            default:"127.0.0.1:4161"`   // NSQLookupd 地址列表
+	Topic           string   `json:"topic" envconfig:"NSQ_TOPIC"`                                                            // 消费的主题名
+	Channel         string   `json:"channel" envconfig:"NSQ_CHANNEL"                     default:"default"`                  // 消费的频道名
+	UserAgent       string   `json:"user_agent" envconfig:"NSQ_USER_AGENT"                  default:"DeepAuto Consumer/1.0"` // 连接时使用的用户UA
+	MaxInFlight     int      `json:"max_in_flight" envconfig:"NSQ_MAX_IN_FLIGHT"               default:"64"`                 // 同时处理的最大消息数量.
+	MaxAttempts     uint16   `json:"max_attempts" envconfig:"NSQ_MAX_ATTEMPTS"                default:"3"`                   // 消息最大重试次数
 	TLS             ntls.Config
 }
 
@@ -66,4 +68,15 @@ func (c Config) Validate() error {
 		return fmt.Errorf("nsq channel is required")
 	}
 	return nil
+}
+
+func MustLoadConfig(cfgPath string) Config {
+	cfg := Config{}
+	if cfgPath == "" {
+		if err := envconfig.Process("", &cfg); err != nil {
+			log.Fatal(err)
+		}
+		return cfg
+	}
+	return cfg
 }
